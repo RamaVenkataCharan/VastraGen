@@ -138,16 +138,31 @@ const Navbar = ({ activePage, setActivePage, notifOpen, setNotifOpen, unreadCoun
         ))}
       </div>
       <div className="navbar-right">
-        <div className="search-bar" style={{width:220}}>
-          <span className="search-icon"><Icon name="search" size={15}/></span>
-          <input placeholder="Search designs, creators…" id="global-search" />
+        <div className="navbar-search-wrap">
+          <div className="search-bar">
+            <span className="search-icon"><Icon name="search" size={15}/></span>
+            <input placeholder="Search designs, creators…" id="global-search" />
+            <kbd className="search-shortcut">/</kbd>
+          </div>
         </div>
-        <div className="icon-btn tooltip-wrap" id="notif-btn" onClick={() => setNotifOpen(o => !o)}>
-          <Icon name="bell" size={18}/>
-          {unreadCount > 0 && <span className="notif-dot"/>}
-          <span className="tooltip">Notifications</span>
+        <div className="navbar-divider-v" />
+        <div className="navbar-actions">
+          <div className="icon-btn tooltip-wrap" id="notif-btn" onClick={() => setNotifOpen(o => !o)}>
+            <Icon name="bell" size={18}/>
+            {unreadCount > 0 && <span className="notif-dot"/>}
+            <span className="tooltip">Notifications</span>
+          </div>
+          <div className="icon-btn tooltip-wrap" id="chat-nav-btn">
+            <Icon name="chat" size={18}/>
+            <span className="tooltip">Messages</span>
+          </div>
         </div>
-        <img src={AVATARS[0]} className="avatar avatar-sm" style={{cursor:'pointer'}} id="user-avatar" alt="Profile" />
+        <div className="navbar-divider-v" />
+        <div className="navbar-profile" id="user-avatar">
+          <img src={AVATARS[0]} className="avatar avatar-nav" alt="Profile" />
+          <span className="navbar-profile-name">Priya</span>
+          <Icon name="explore" size={12} style={{color:'var(--text-muted)', marginLeft: -2}}/>
+        </div>
       </div>
     </nav>
   );
