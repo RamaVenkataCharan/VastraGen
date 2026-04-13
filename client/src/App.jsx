@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 
 // ════════════════════════════════════════════
 // DATA
@@ -190,63 +191,219 @@ const NotifPanel = ({ onClose }) => (
 );
 
 // ════════════════════════════════════════════
-// HERO
+// HERO VISUAL (Option 1 + 2 + 3)
 // ════════════════════════════════════════════
-const Hero = ({ onExplore, onGenerate }) => (
-  <section className="hero" id="hero-section">
-    <div className="orb" style={{width:600,height:600,background:'radial-gradient(circle, #d4af37 0%, transparent 70%)',top:'-10%',left:'-10%'}}/>
-    <div className="orb" style={{width:400,height:400,background:'radial-gradient(circle, #7c3aed 0%, transparent 70%)',bottom:'0',right:'0'}}/>
-    <div className="hero-content animate-fadeInUp">
-      <div className="hero-eyebrow">
-        <span className="hero-eyebrow-line"/>
-        <span className="hero-badge">AI-Powered • Indian Ethnic • Made in India 🇮🇳</span>
+const HeroVisual = () => {
+  const [designs, setDesigns] = useState([]);
+  const [index, setIndex] = useState(0);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const rotateX = useTransform(y, [-300, 300], [5, -5]);
+  const rotateY = useTransform(x, [-300, 300], [-5, 5]);
+
+  useEffect(() => {
+    // Try absolute localhost first, fallback to same origin if proxy is configured
+    fetch('http://localhost:5000/api/designs')
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        return res.json();
+      })
+      .then(data => {
+        console.log("Fetched designs:", data);
+        if (Array.isArray(data) && data.length > 0) setDesigns(data);
+        else console.warn("API returned invalid or empty data:", data);
+      })
+      .catch(err => {
+        console.error("Critical error fetching designs:", err);
+        // Fallback to static data as a failsafe
+        setDesigns([
+          { id: 1, imageUrl: "/assets/design1.png", title: "Failsafe Design 1", trending: "#Failsafe", designer: "System" },
+          { id: 2, imageUrl: "/assets/design2.png", title: "Failsafe Design 2", trending: "#Failsafe", designer: "System" }
+        ]);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (designs.length === 0) return;
+    const interval = setInterval(() => {
+      setIndex((prev) => (prev + 1) % designs.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [designs]);
+
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    x.set(e.clientX - rect.left - rect.width / 2);
+    y.set(e.clientY - rect.top - rect.height / 2);
+  };
+
+  if (designs.length === 0) return (
+    <div className="w-full h-full flex items-center justify-center bg-base-900/50 backdrop-blur-md">
+      <div className="text-gold animate-pulse text-sm font-semibold tracking-widest uppercase">Loading AI Designs...</div>
+    </div>
+  );
+
+  const current = designs[index];
+
+  return (
+    <motion.div 
+      className="relative w-full h-full overflow-hidden cursor-crosshair"
+      onMouseMove={handleMouseMove}
+      style={{ rotateX, rotateY, perspective: 1000, backgroundColor: '#07070f' }}
+    >
+      {/* Visual Depth Glow (Option 3) */}
+      <div className="absolute top-1/4 right-0 w-96 h-96 bg-gold-dim blur-[120px] rounded-full opacity-30 pointer-events-none" />
+      <div className="absolute bottom-1/4 left-1/4 w-64 h-64 bg-purple-light/10 blur-[100px] rounded-full opacity-20 pointer-events-none" />
+
+      {/* Main Slider (Option 1) */}
+      <AnimatePresence mode="wait">
+        <motion.img
+          key={index}
+          src={current.imageUrl}
+          alt={current.title}
+          className="absolute inset-0 w-full h-full object-cover"
+          initial={{ opacity: 0, scale: 1.1 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 1.05 }}
+          whileHover={{ scale: 1.02 }}
+          transition={{ duration: 1.2, ease: "easeInOut" }}
+        />
+      </AnimatePresence>
+
+      {/* Narrative Gradient Blend */}
+      <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to left, transparent, rgba(0,0,0,0.4) 60%, rgba(0,0,0,0.9) 100%)' }} />
+      <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent 40%)' }} />
+
+      {/* Floating Storytelling (Option 2) */}
+      <div className="absolute top-12 right-12 flex flex-col gap-4 z-20 pointer-events-none items-end">
+        <motion.div 
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="bg-white/5 backdrop-blur-xl px-4 py-2 rounded-xl border border-white/10 shadow-2xl"
+        >
+          <span className="text-xs text-gold font-bold tracking-tight">🔥 Trending {current.trending}</span>
+        </motion.div>
+        <motion.div 
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1 }}
+          className="bg-white/5 backdrop-blur-xl p-4 rounded-xl border border-white/10 shadow-2xl text-right"
+        >
+          <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-1">Top Creator</p>
+          <p className="text-white text-sm font-bold">{current.designer}</p>
+        </motion.div>
       </div>
-      <h1 className="hero-title">
-        Design the<br/>
-        <span className="gradient-text serif" style={{fontStyle:'italic'}}>Future of Fashion</span>
-      </h1>
-      <p className="hero-subtitle">
-        Generate breathtaking Indian ethnic wear designs with AI. Connect with India's finest fashion creators. Share, inspire, and collaborate.
-      </p>
-      <div className="hero-cta">
-        <button className="btn btn-gold" id="hero-generate-btn" onClick={onGenerate}>
-          <Icon name="wand" size={16}/> Start Generating
-        </button>
-        <button className="btn btn-outline" id="hero-explore-btn" onClick={onExplore}>
-          <Icon name="explore" size={16}/> Explore Designs
-        </button>
-      </div>
-      <div className="hero-stats">
-        {[['48K+','Creators'],['2.4M','Designs'],['99.2%','Quality Score']].map(([v,l]) => (
-          <div key={l}>
-            <div className="hero-stat-value gradient-text">{v}</div>
-            <div className="hero-stat-label">{l}</div>
+
+      {/* Final Social Proof Card */}
+      <div className="absolute bottom-12 right-12 z-20">
+        <motion.div 
+          key={`card-${index}`}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="backdrop-blur-2xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl max-w-[280px]"
+        >
+          <p className="text-[10px] text-gold/80 font-bold uppercase tracking-widest mb-2">✨ Just Generated</p>
+          <h3 className="text-white text-lg font-extrabold leading-tight mb-4">{current.title}</h3>
+          <div className="flex items-center gap-2">
+            <div className="flex -space-x-2">
+              {[0,1,2].map(i => (
+                <div key={i} className="w-8 h-8 rounded-full border-2 border-[#07070f] bg-gray-800 overflow-hidden">
+                  <img src={AVATARS[i+2]} alt="" className="w-full h-full object-cover"/>
+                </div>
+              ))}
+            </div>
+            <span className="text-xs text-gray-400 font-medium">+124 others liked</span>
           </div>
+        </motion.div>
+      </div>
+
+      {/* Dots */}
+      <div className="absolute bottom-8 left-12 flex gap-3 z-30">
+        {designs.map((_, i) => (
+          <div
+            key={i}
+            onClick={() => setIndex(i)}
+            className="h-1 rounded-full cursor-pointer transition-all duration-500"
+            style={{ 
+              width: i === index ? '32px' : '8px',
+              backgroundColor: i === index ? 'var(--gold)' : 'rgba(255,255,255,0.2)'
+            }}
+          />
         ))}
       </div>
-    </div>
-    <div className="hero-visual">
-      <div className="hero-image-stack">
-        <img src="/assets/design1.png" className="hero-img-main animate-float" alt="Featured Indian fashion design" />
-        <div className="hero-float-card hero-float-card-1">
-          <div style={{fontSize:12,color:'var(--text-muted)',marginBottom:4}}>🔥 Trending Now</div>
-          <div style={{fontSize:14,fontWeight:700}}>#ZariLehenga</div>
-          <div style={{fontSize:12,color:'var(--gold)'}}>12,400+ posts today</div>
+    </motion.div>
+  );
+};
+
+// ════════════════════════════════════════════
+// HERO
+// ════════════════════════════════════════════
+const Hero = ({ onExplore, onGenerate }) => {
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.15, delayChildren: 0.3 }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 30 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
+  };
+
+  return (
+    <section className="hero" id="hero-section" style={{ overflow: 'hidden' }}>
+      <div className="orb" style={{width:800,height:800,background:'radial-gradient(circle, rgba(212,175,55,0.05) 0%, transparent 70%)',top:'-10%',left:'-10%',pointerEvents:'none'}}/>
+      
+      <div style={{ display: 'flex', width: '100%', minHeight: '100vh', position: 'relative', zIndex: 10 }}>
+        {/* LEFT: Storytelling & CTA */}
+        <div style={{ width: '50%', display: 'flex', alignItems: 'center', padding: '0 80px' }}>
+          <motion.div 
+            variants={container} 
+            initial="hidden" 
+            whileInView="show" 
+            viewport={{ once: true }}
+            className="hero-content"
+          >
+            <motion.div variants={item} className="hero-eyebrow" style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+              <span className="hero-eyebrow-line" style={{ width: 32, height: 2, background: 'var(--gold)' }}/>
+              <span className="hero-badge" style={{ fontSize: 12, fontWeight: 700, color: 'var(--gold)', letterSpacing: '0.1em' }}>AI-Powered • Ethnic Wear</span>
+            </motion.div>
+            <motion.h1 variants={item} className="hero-title" style={{ fontSize: 'clamp(3rem, 5vw, 5rem)', fontWeight: 800, lineHeight: 1, marginBottom: 24 }}>
+              Design the<br/>
+              <span className="gradient-text serif italic">Future of Fashion</span>
+            </motion.h1>
+            <motion.p variants={item} className="hero-subtitle" style={{ fontSize: 18, color: 'var(--text-secondary)', maxWidth: 500, marginBottom: 40, lineHeight: 1.6 }}>
+              Generate breathtaking Indian ethnic wear designs with AI. Connect with India's finest fashion creators. Share, inspire, and collaborate.
+            </motion.p>
+            <motion.div variants={item} className="hero-cta" style={{ display: 'flex', gap: 16 }}>
+              <button className="btn btn-gold btn-lg" style={{ height: 56, padding: '0 32px' }} onClick={onGenerate}>
+                <Icon name="wand" size={18}/> Start Generating
+              </button>
+              <button className="btn btn-outline btn-lg" style={{ height: 56, padding: '0 32px' }} onClick={onExplore}>
+                <Icon name="explore" size={18}/> Explore Designs
+              </button>
+            </motion.div>
+            <motion.div variants={item} className="hero-stats" style={{ display: 'flex', gap: 48, marginTop: 64 }}>
+              {[['48K+','Creators'],['2.4M','Designs'],['99.2%','Quality Score']].map(([v,l]) => (
+                <div key={l}>
+                  <div className="hero-stat-value gradient-text" style={{ fontSize: 32, fontWeight: 800 }}>{v}</div>
+                  <div className="hero-stat-label" style={{ fontSize: 12, textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '0.1em' }}>{l}</div>
+                </div>
+              ))}
+            </motion.div>
+          </motion.div>
         </div>
-        <div className="hero-float-card hero-float-card-2">
-          <div style={{fontSize:12,color:'var(--text-muted)',marginBottom:4}}>✨ Just Generated</div>
-          <div style={{fontSize:14,fontWeight:700}}>Bridal Collection 2026</div>
-          <div style={{display:'flex',gap:6,marginTop:6}}>
-            {AVATARS.slice(0,4).map((a,i)=>(
-              <img key={i} src={a} alt="" style={{width:24,height:24,borderRadius:'50%',border:'2px solid var(--border-gold)'}}/>
-            ))}
-            <span style={{fontSize:12,color:'var(--text-muted)',alignSelf:'center'}}>+48</span>
-          </div>
+
+        {/* RIGHT: Visual System */}
+        <div style={{ width: '50%', height: '100vh', position: 'sticky', top: 0 }}>
+          <HeroVisual />
         </div>
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 // ════════════════════════════════════════════
 // DESIGN CARD

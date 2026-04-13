@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "imageUrl": "/assets/design1.png",
+    "title": "Zari Lehenga Royale",
+    "designer": "Priya Sharma",
+    "trending": "#ZariLehenga"
+  },
+  {
+    "id": 2,
+    "imageUrl": "/assets/design2.png",
+    "title": "Peacock Saree Opus",
+    "designer": "Arjun Mehta",
+    "trending": "#SilkSaree"
+  },
+  {
+    "id": 3,
+    "imageUrl": "/assets/design3.png",
+    "title": "Anarkali Mirage",
+    "designer": "Meera Iyer",
+    "trending": "#Anarkali"
+  }
+]
