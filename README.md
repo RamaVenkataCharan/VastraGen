@@ -29,7 +29,7 @@ Connect with designers, creators, and fashion enthusiasts.
 - Share AI-generated designs
 - Explore trending creations
 - Follow creators
-- Get inspiration from the community
+- Get inspiration from the community.  
 
 ---
 
