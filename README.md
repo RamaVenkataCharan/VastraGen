@@ -6,7 +6,7 @@ VastraGen is an AI-powered fashion design platform that transforms text prompts 
 
 ---
 
-## ✨ Features
+## ✨ Features.    
 
 ### 🎨 AI Fashion Design Generation
 Generate unique fashion concepts from simple text prompts.
